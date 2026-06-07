@@ -1,0 +1,115 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: orion-api-gateway
+
+  cloud:
+    gateway:
+      routes:
+
+        # === IAM — rutas públicas de auth (sin JWT) ===
+        - id: iam-auth-public
+          uri: http://localhost:8081
+          predicates:
+            - Path=/v1/auth/**
+          filters:
+            - StripPrefix=0
+
+        # === IAM — gestión de tenants y usuarios (requiere JWT — inyectado por el filtro) ===
+        - id: iam-tenants
+          uri: http://localhost:8081
+          predicates:
+            - Path=/v1/tenants/**
+          filters:
+            - StripPrefix=0
+
+        - id: iam-users
+          uri: http://localhost:8081
+          predicates:
+            - Path=/v1/users/**
+          filters:
+            - StripPrefix=0
+
+        # === Dispatch Service ===
+        - id: dispatch
+          uri: http://localhost:8082
+          predicates:
+            - Path=/v1/dispatch/**
+          filters:
+            - StripPrefix=0
+
+        # === Fleet Service ===
+        - id: fleet
+          uri: http://localhost:8083
+          predicates:
+            - Path=/v1/fleet/**
+          filters:
+            - StripPrefix=0
+
+        # === Maintenance Service ===
+        - id: maintenance
+          uri: http://localhost:8084
+          predicates:
+            - Path=/v1/maintenance/**
+          filters:
+            - StripPrefix=0
+
+        # === Telemetry Service ===
+        - id: telemetry
+          uri: http://localhost:8085
+          predicates:
+            - Path=/v1/telemetry/**
+          filters:
+            - StripPrefix=0
+
+        # === Incidents (Dispatch Service también sirve /v1/incidents) ===
+        - id: incidents
+          uri: http://localhost:8082
+          predicates:
+            - Path=/v1/incidents/**
+          filters:
+            - StripPrefix=0
+
+        # === Notification Service ===
+        - id: notification
+          uri: http://localhost:8086
+          predicates:
+            - Path=/v1/notification/**
+          filters:
+            - StripPrefix=0
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Swagger UI — agrega los api-docs de cada microservicio como tabs seleccionables
+springdoc:
+  swagger-ui:
+    use-root-path: true
+    urls:
+      - name: IAM Service
+        url: http://localhost:8081/v3/api-docs
+      - name: Dispatch Service
+        url: http://localhost:8082/v3/api-docs
+      - name: Fleet Service
+        url: http://localhost:8083/v3/api-docs
+      - name: Maintenance Service
+        url: http://localhost:8084/v3/api-docs
+      - name: Telemetry Service
+        url: http://localhost:8085/v3/api-docs
+      - name: Notification Service
+        url: http://localhost:8086/v3/api-docs
+
+# Secreto JWT compartido con el IAM service (HMAC)
+# IMPORTANTE: este valor DEBE ser idéntico al configurado en orion-iam-service
+orion:
+  security:
+    jwt:
+      secret: orion-iam-super-secret-key-change-in-production-must-be-at-least-256-bits

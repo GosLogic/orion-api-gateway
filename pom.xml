@@ -12,26 +12,12 @@
     <artifactId>gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>orion-api-gateway</name>
-    <description>orion-api-gateway</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+    <description>Orion API Gateway — enrutamiento, autenticación JWT y tenant injection</description>
+
     <properties>
         <java.version>25</java.version>
-        <!-- Spring Cloud 2025.1.x (Oakwood) — compatible with Spring Boot 4.0.x.
-             Note: in this release the reactive gateway starter was renamed to
-             spring-cloud-starter-gateway-server-webflux (see dependency below). -->
         <spring-cloud.version>2025.1.1</spring-cloud.version>
+        <jjwt.version>0.12.6</jjwt.version>
     </properties>
 
     <dependencyManagement>
@@ -47,12 +33,32 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Spring Cloud Gateway 5.x reactive stack (Boot 4.x).
-             Artifact renamed from spring-cloud-starter-gateway in the 4.x line. -->
+        <!-- Spring Cloud Gateway (reactivo / WebFlux) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
         </dependency>
+
+        <!-- JWT (mismo secreto que IAM) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Actuator y OpenAPI -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -63,6 +69,7 @@
             <version>3.0.3</version>
         </dependency>
 
+        <!-- Dev tools y Lombok -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -74,6 +81,8 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -102,9 +111,7 @@
                     <execution>
                         <id>default-compile</id>
                         <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
+                        <goals><goal>compile</goal></goals>
                         <configuration>
                             <annotationProcessorPaths>
                                 <path>
@@ -117,9 +124,7 @@
                     <execution>
                         <id>default-testCompile</id>
                         <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
+                        <goals><goal>testCompile</goal></goals>
                         <configuration>
                             <annotationProcessorPaths>
                                 <path>
