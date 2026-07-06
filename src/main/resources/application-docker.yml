@@ -1,75 +1,76 @@
 spring:
   cloud:
     gateway:
-      routes:
+      server:
+        webflux:
+          routes:
+            # === IAM — rutas públicas de auth (sin JWT) ===
+            - id: iam-auth-public
+              uri: http://orion-iam-service:8081
+              predicates:
+                - Path=/v1/auth/**
+              filters:
+                - StripPrefix=0
 
-        # === IAM — rutas públicas de auth (sin JWT) ===
-        - id: iam-auth-public
-          uri: http://orion-iam-service:8081
-          predicates:
-            - Path=/v1/auth/**
-          filters:
-            - StripPrefix=0
+            # === IAM — gestión de tenants y usuarios ===
+            - id: iam-tenants
+              uri: http://orion-iam-service:8081
+              predicates:
+                - Path=/v1/tenants/**
+              filters:
+                - StripPrefix=0
 
-        # === IAM — gestión de tenants y usuarios ===
-        - id: iam-tenants
-          uri: http://orion-iam-service:8081
-          predicates:
-            - Path=/v1/tenants/**
-          filters:
-            - StripPrefix=0
+            - id: iam-users
+              uri: http://orion-iam-service:8081
+              predicates:
+                - Path=/v1/users/**
+              filters:
+                - StripPrefix=0
 
-        - id: iam-users
-          uri: http://orion-iam-service:8081
-          predicates:
-            - Path=/v1/users/**
-          filters:
-            - StripPrefix=0
+            # === Dispatch Service ===
+            - id: dispatch
+              uri: http://orion-dispatch-service:8082
+              predicates:
+                - Path=/v1/dispatch/**
+              filters:
+                - StripPrefix=0
 
-        # === Dispatch Service ===
-        - id: dispatch
-          uri: http://orion-dispatch-service:8082
-          predicates:
-            - Path=/v1/dispatch/**
-          filters:
-            - StripPrefix=0
+            # === Fleet Service ===
+            - id: fleet
+              uri: http://orion-fleet-service:8083
+              predicates:
+                - Path=/v1/fleet/**
+              filters:
+                - StripPrefix=0
 
-        # === Fleet Service ===
-        - id: fleet
-          uri: http://orion-fleet-service:8083
-          predicates:
-            - Path=/v1/fleet/**
-          filters:
-            - StripPrefix=0
+            # === Maintenance Service ===
+            - id: maintenance
+              uri: http://orion-maintenance-service:8084
+              predicates:
+                - Path=/v1/maintenance/**
+              filters:
+                - StripPrefix=0
 
-        # === Maintenance Service ===
-        - id: maintenance
-          uri: http://orion-maintenance-service:8084
-          predicates:
-            - Path=/v1/maintenance/**
-          filters:
-            - StripPrefix=0
+            # === Telemetry Service ===
+            - id: telemetry
+              uri: http://orion-telemetry-service:8085
+              predicates:
+                - Path=/v1/telemetry/**
+              filters:
+                - StripPrefix=0
 
-        # === Telemetry Service ===
-        - id: telemetry
-          uri: http://orion-telemetry-service:8085
-          predicates:
-            - Path=/v1/telemetry/**
-          filters:
-            - StripPrefix=0
+            # === Incidents (Dispatch Service también sirve /v1/incidents) ===
+            - id: incidents
+              uri: http://orion-dispatch-service:8082
+              predicates:
+                - Path=/v1/incidents/**
+              filters:
+                - StripPrefix=0
 
-        # === Incidents (Dispatch Service también sirve /v1/incidents) ===
-        - id: incidents
-          uri: http://orion-dispatch-service:8082
-          predicates:
-            - Path=/v1/incidents/**
-          filters:
-            - StripPrefix=0
-
-        # === Notification Service ===
-        - id: notification
-          uri: http://orion-notification-service:8086
-          predicates:
-            - Path=/v1/notification/**
-          filters:
-            - StripPrefix=0
+            # === Notification Service ===
+            - id: notification
+              uri: http://orion-notification-service:8086
+              predicates:
+                - Path=/v1/notification/**
+              filters:
+                - StripPrefix=0

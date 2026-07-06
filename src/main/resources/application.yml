@@ -7,78 +7,79 @@ spring:
 
   cloud:
     gateway:
-      routes:
+      server:
+        webflux:
+          routes:
+            # === IAM — rutas públicas de auth (sin JWT) ===
+            - id: iam-auth-public
+              uri: http://localhost:8081
+              predicates:
+                - Path=/v1/auth/**
+              filters:
+                - StripPrefix=0
 
-        # === IAM — rutas públicas de auth (sin JWT) ===
-        - id: iam-auth-public
-          uri: http://localhost:8081
-          predicates:
-            - Path=/v1/auth/**
-          filters:
-            - StripPrefix=0
+            # === IAM — gestión de tenants y usuarios (requiere JWT — inyectado por el filtro) ===
+            - id: iam-tenants
+              uri: http://localhost:8081
+              predicates:
+                - Path=/v1/tenants/**
+              filters:
+                - StripPrefix=0
 
-        # === IAM — gestión de tenants y usuarios (requiere JWT — inyectado por el filtro) ===
-        - id: iam-tenants
-          uri: http://localhost:8081
-          predicates:
-            - Path=/v1/tenants/**
-          filters:
-            - StripPrefix=0
+            - id: iam-users
+              uri: http://localhost:8081
+              predicates:
+                - Path=/v1/users/**
+              filters:
+                - StripPrefix=0
 
-        - id: iam-users
-          uri: http://localhost:8081
-          predicates:
-            - Path=/v1/users/**
-          filters:
-            - StripPrefix=0
+            # === Dispatch Service ===
+            - id: dispatch
+              uri: http://localhost:8082
+              predicates:
+                - Path=/v1/dispatch/**
+              filters:
+                - StripPrefix=0
 
-        # === Dispatch Service ===
-        - id: dispatch
-          uri: http://localhost:8082
-          predicates:
-            - Path=/v1/dispatch/**
-          filters:
-            - StripPrefix=0
+            # === Fleet Service ===
+            - id: fleet
+              uri: http://localhost:8083
+              predicates:
+                - Path=/v1/fleet/**
+              filters:
+                - StripPrefix=0
 
-        # === Fleet Service ===
-        - id: fleet
-          uri: http://localhost:8083
-          predicates:
-            - Path=/v1/fleet/**
-          filters:
-            - StripPrefix=0
+            # === Maintenance Service ===
+            - id: maintenance
+              uri: http://localhost:8084
+              predicates:
+                - Path=/v1/maintenance/**
+              filters:
+                - StripPrefix=0
 
-        # === Maintenance Service ===
-        - id: maintenance
-          uri: http://localhost:8084
-          predicates:
-            - Path=/v1/maintenance/**
-          filters:
-            - StripPrefix=0
+            # === Telemetry Service ===
+            - id: telemetry
+              uri: http://localhost:8085
+              predicates:
+                - Path=/v1/telemetry/**
+              filters:
+                - StripPrefix=0
 
-        # === Telemetry Service ===
-        - id: telemetry
-          uri: http://localhost:8085
-          predicates:
-            - Path=/v1/telemetry/**
-          filters:
-            - StripPrefix=0
+            # === Incidents (Dispatch Service también sirve /v1/incidents) ===
+            - id: incidents
+              uri: http://localhost:8082
+              predicates:
+                - Path=/v1/incidents/**
+              filters:
+                - StripPrefix=0
 
-        # === Incidents (Dispatch Service también sirve /v1/incidents) ===
-        - id: incidents
-          uri: http://localhost:8082
-          predicates:
-            - Path=/v1/incidents/**
-          filters:
-            - StripPrefix=0
-
-        # === Notification Service ===
-        - id: notification
-          uri: http://localhost:8086
-          predicates:
-            - Path=/v1/notification/**
-          filters:
-            - StripPrefix=0
+            # === Notification Service ===
+            - id: notification
+              uri: http://localhost:8086
+              predicates:
+                - Path=/v1/notification/**
+              filters:
+                - StripPrefix=0
 
 management:
   endpoints:

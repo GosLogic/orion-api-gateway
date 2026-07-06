@@ -30,6 +30,7 @@ import java.util.List;
  *   X-User-Id      → claims.subject (users.id)
  *   X-Tenant-Id    → claims.tenant_id (externalId — autoritativo, reemplaza el header del cliente)
  *   X-Driver-Id    → claims.driver_id (solo si rol DRIVER)
+ *   X-Vehicle-Id   → claims.vehicle_id (solo si rol DRIVER y vehículo resuelto en Fleet)
  *   X-Roles        → lista de roles separada por comas
  *   X-User-Email   → claims.email
  */
@@ -91,6 +92,13 @@ public class JwtAuthenticationGlobalFilter implements GlobalFilter, Ordered {
         if (driverId != null) {
             mutatedRequest = mutatedRequest.mutate()
                     .header("X-Driver-Id", driverId)
+                    .build();
+        }
+
+        String vehicleId = claims.get("vehicle_id", String.class);
+        if (vehicleId != null) {
+            mutatedRequest = mutatedRequest.mutate()
+                    .header("X-Vehicle-Id", vehicleId)
                     .build();
         }
 
